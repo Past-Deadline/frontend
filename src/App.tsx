@@ -1,32 +1,33 @@
-import './App.css'
-import Header from "./components/Header.tsx";
-import Footer from "./components/Footer.tsx";
-import Slider from './components/Slider.tsx';
-import Checkbox from './components/checkbox.tsx';
-import  RangeSlider from './components/RangeSlider.tsx';
-import VerticalDoubleSlider from './components/RangeSlider.tsx';
-import { useState } from 'react';
-// import {RangeSlider} from './components/RangeSlider.tsx';
+import React, { useState } from "react";
+import "./App.css";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
+import VerticalDoubleRange from "./components/RangeSlider";
+
 function App() {
-  const [values, setValues] = useState<[number, number]>([30, 70]);
+  const [rangeValues, setRangeValues] = useState<[number, number]>([20, 80]);
+
   return (
     <>
-    
-        <Header />
-        <main>
-          {/* <Slider/> */}
-        <VerticalDoubleSlider
+      <Header />
+      <main className="p-4 flex flex-col items-center gap-6">
+        <h2 className="text-xl font-bold">Vertical Double Range Slider</h2>
+
+        <VerticalDoubleRange
           min={0}
           max={100}
-          initialValues={values}
-          onChange={setValues}
-          height={400}
+          initialValues={rangeValues}
+          height={400} // колко пиксела висок да е
+          onChange={(vals) => setRangeValues(vals)}
         />
-          {/* <Checkbox/> */}
-        </main>
-        <Footer />
+
+        <p>
+          Стойности: <b>{rangeValues[0]}</b> - <b>{rangeValues[1]}</b>
+        </p>
+      </main>
+      <Footer />
     </>
-  )
+  );
 }
 
-export default App
+export default App;
