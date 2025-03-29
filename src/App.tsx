@@ -1,13 +1,11 @@
-import { useState } from "react";
 import "./App.css";
 import Header from "./components/layout/Header";
 import Footer from "./components/layout/Footer";
-import VerticalDoubleRange from "./components/RangeSlider";
 import Form from "./components/Form";
 import { Toaster } from "react-hot-toast";
 
 function App() {
-  const [rangeValues, setRangeValues] = useState<[number, number]>([20, 80]);
+  // const [rangeValues, setRangeValues] = useState<[number, number]>([20, 80]);
 
   return (
     <>
