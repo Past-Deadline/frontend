@@ -1,4 +1,4 @@
-import {ReactElement, useEffect, useRef, useState} from 'react';
+import { ReactElement, useEffect, useRef, useState } from 'react';
 import './preview-map.css';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import mapboxgl, { Layer } from 'mapbox-gl';
@@ -11,7 +11,7 @@ export interface PreviewMapProps {
     children: ReactElement | ReactElement[];
 }
 
-export default function PreviewMap({data, setData, children}: PreviewMapProps) {
+export default function PreviewMap({ data, setData, children }: PreviewMapProps) {
     const mapContainerRef = useRef<HTMLDivElement | null>(null);
     const mapRef = useRef<mapboxgl.Map | null>(null);
 
@@ -19,23 +19,23 @@ export default function PreviewMap({data, setData, children}: PreviewMapProps) {
 
     const heatmapId = 'space-objects';
 
-    const handlePost = async () => {
-        try {
-            const heatmapData = await getHeatmap({
-                timestamp: new Date().toISOString(),
-                minAlt: 1000,
-                maxAlt: 2000,
-            });
-            setData(heatmapData);
-            setIsLoading(false);
-        } catch (err) {
-            console.error(err);
-        }
-    };
-
     useEffect(() => {
-        handlePost();
-    }, []);
+        const fetchData = async () => {
+            try {
+                const heatmapData = await getHeatmap({
+                    timestamp: new Date().toISOString(),
+                    minAlt: 1000,
+                    maxAlt: 2000,
+                });
+                setData(heatmapData);
+                setIsLoading(false);
+            } catch (err) {
+                console.error(err);
+            }
+        };
+
+        fetchData();
+    }, [setData]);
 
     useEffect(() => {
         if (!mapContainerRef.current) return;
