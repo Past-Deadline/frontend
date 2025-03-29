@@ -2,6 +2,8 @@ import './App.css'
 import Header from "./components/Header.tsx";
 import Footer from "./components/Footer.tsx";
 import Slider from './components/Slider.tsx';
+import Checkbox from './components/checkbox.tsx';
+// import {RangeSlider} from './components/RangeSlider.tsx';
 function App() {
   return (
     <>
@@ -9,6 +11,8 @@ function App() {
         <Header />
         <main>
           {/* <Slider/> */}
+          {/* <RangeSlider/> */}
+          {/* <Checkbox/> */}
         </main>
         <Footer />
     </>
