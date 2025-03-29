@@ -16,9 +16,7 @@ const Slider: React.FC = () => {
       {/* Day Slider */}
       <div className="w-full">
         <div className="flex justify-between text-sm font-semibold text-center mb-2">
-          <span>Previous Days</span>
           <label>Select Day</label>
-          <span>Future Days</span>
         </div>
         <input
           type="range"
@@ -88,7 +86,7 @@ const Slider: React.FC = () => {
 
       {/* Selected Time Output */}
       <div className="text-lg font-bold bg-blue-600 text-white px-4 py-2 rounded-lg">
-        {getDate(dayOffset)} {dayOffset < 0 ? `(-${Math.abs(dayOffset)})` : `(+${dayOffset})`} at {hour < 10 ? `0${hour}` : hour}:{minute < 10 ? `0${minute}` : minute}
+        {getDate(dayOffset)} at {hour < 10 ? `0${hour}` : hour}:{minute < 10 ? `0${minute}` : minute}
       </div>
     </div>
   );
