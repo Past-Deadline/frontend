@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { formatISO, addDays, addMonths, isBefore, isAfter } from 'date-fns';
-import toast from 'react-hot-toast';
+import { addDays, addMonths, isBefore, isAfter } from 'date-fns';
 import { postFormData } from '../services/SchedulerService';
 
 export default function SchedulerForm() {
@@ -25,7 +24,7 @@ export default function SchedulerForm() {
         const startDate = new Date(formData.start);
         const endDate = new Date(formData.end);
 
-        let newErrors = { start: '', end: '' };
+        const newErrors = { start: '', end: '' };
 
         if (isBefore(startDate, addDays(currentDate, 3))) {
             newErrors.start = 'Start date must be at least 3 days from today.';
@@ -43,20 +42,18 @@ export default function SchedulerForm() {
         }
 
         const data = {
-            "time_frame": {
-                "start": formData.start,
-                "end": formData.end
+            time_frame: {
+                start: formData.start,
+                end: formData.end
             },
-            "orbit": formData.orbit,
-            "point_of_interest": {
-                "tle1": formData.tle1,
-                "tle2": formData.tle2
+            orbit: formData.orbit,
+            point_of_interest: {
+                tle1: formData.tle1,
+                tle2: formData.tle2
             }
-        }
-        
+        };
 
-        postFormData(JSON.stringify(data));
-
+        postFormData(data);
     };
 
     return (

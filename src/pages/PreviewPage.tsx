@@ -6,16 +6,16 @@ import Slider from "../components/Slider"
 export const PreviewPage = () => {
     const [rangeValues, setRangeValues] = useState<[number, number]>([20, 80]);
     return (
-        <PreviewMap props="">
+        <PreviewMap>
             <Slider />
             <VerticalDoubleRange
                 min={0}
                 max={100}
                 initialValues={rangeValues}
-                height={400} // колко пиксела висок да е
+                height={400}
                 onChange={(vals) => setRangeValues(vals)}
             />
-
         </PreviewMap>
+
     )
 }
