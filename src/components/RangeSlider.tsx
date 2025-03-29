@@ -142,6 +142,11 @@ const VerticalDoubleRangeFlip: React.FC<VerticalDoubleRangeProps> = ({
           zIndex: 30,
         }}
       />
+<p className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-sm  whitespace-nowrap">
+  Z coordinate
+</p>
+
+
     </div>
   );
 };

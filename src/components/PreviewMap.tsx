@@ -1,11 +1,17 @@
-import { useEffect, useRef, useState } from 'react';
+import { ReactElement, useEffect, useRef, useState } from 'react';
 import './preview-map.css';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import mapboxgl, { Layer } from 'mapbox-gl';
 import type { FeatureCollection } from 'geojson';
 import { getHeatmap } from '../services/MapService.ts';
+import Slider from './Slider.tsx';
 
-export default function PreviewMap() {
+export interface PreviewMapProps {
+    props: any;
+    children: ReactElement | ReactElement[];
+}
+
+export default function PreviewMap({ props, children }: PreviewMapProps) {
     const mapContainerRef = useRef<HTMLDivElement | null>(null);
     const mapRef = useRef<mapboxgl.Map | null>(null);
 
@@ -116,7 +122,11 @@ export default function PreviewMap() {
                     id="preview-map-container"
                     className="w-full h-full relative z-0"
                     ref={mapContainerRef}
-                />
+                >
+                    <div className='w-full h-full p-4 relative flex flex-wrap items-center justify-between z-1'>
+                        {children}
+                        </div>
+                    </div>
             )}
         </div>
     );
