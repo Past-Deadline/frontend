@@ -22,7 +22,7 @@ export default function PreviewMap() {
     }, []);
 
     return (
-        <div id='preview-map-container'  ref={mapContainerRef}>
+        <div id='preview-map-container' ref={mapContainerRef}>
             <p>Bastun</p>
         </div>
     )
