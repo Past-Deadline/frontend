@@ -3,6 +3,8 @@ import "./App.css";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import VerticalDoubleRange from "./components/RangeSlider";
+import Form from "./components/Form";
+import { Toaster } from "react-hot-toast";
 
 function App() {
   const [rangeValues, setRangeValues] = useState<[number, number]>([20, 80]);
@@ -11,9 +13,9 @@ function App() {
     <>
       <Header />
       <main className="p-4 flex flex-col items-center gap-6">
-        <h2 className="text-xl font-bold">Vertical Double Range Slider</h2>
+        {/* <h2 className="text-xl font-bold">Vertical Double Range Slider</h2> */}
 
-        <VerticalDoubleRange
+        {/* <VerticalDoubleRange
           min={0}
           max={100}
           initialValues={rangeValues}
@@ -23,7 +25,9 @@ function App() {
 
         <p>
           Стойности: <b>{rangeValues[0]}</b> - <b>{rangeValues[1]}</b>
-        </p>
+        </p> */}
+        <Toaster />
+        <Form/>
       </main>
       <Footer />
     </>
