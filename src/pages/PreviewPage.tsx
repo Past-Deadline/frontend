@@ -1,7 +1,7 @@
+import { useState } from "react";
 import PreviewMap from "../components/PreviewMap"
 import RangeSlider from "../components/RangeSlider"
 import Sliders from "../components/Sliders.tsx"
-import {useState} from "react";
 import type {FeatureCollection} from "geojson";
 import DatePicker from "../components/DatePicker.tsx";
 
@@ -32,5 +32,6 @@ export const PreviewPage = () => {
                          className={"absolute z-1 top-1/2 right-0 transform -translate-y-1/2"}
             />
         </PreviewMap>
+
     )
 }
