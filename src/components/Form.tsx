@@ -1,19 +1,20 @@
 import { useState } from 'react';
 import { formatISO, addDays, addMonths, isBefore, isAfter } from 'date-fns';
 import toast from 'react-hot-toast';
+import { postFormData } from '../services/SchedulerService';
 
-export default function SpaceForm() {
+export default function SchedulerForm() {
     const [formData, setFormData] = useState({
         start: '',
         end: '',
         orbit: 'LEO',
-        latitude: '',
-        longitude: ''
+        tle1: '',
+        tle2: ''
     });
 
     const [errors, setErrors] = useState({ start: '', end: '' });
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
         setErrors({ ...errors, [e.target.name]: '' });
     };
@@ -48,36 +49,14 @@ export default function SpaceForm() {
             },
             "orbit": formData.orbit,
             "point_of_interest": {
-                "latitude": formData.latitude,
-                "longitude": formData.longitude
+                "tle1": formData.tle1,
+                "tle2": formData.tle2
             }
         }
         
 
-        console.log('Form submitted:', JSON.stringify(data));
-        // const postFormData = async (data: any) => {
-        //     try {
-        //         const response = await fetch('https://example.com/api/schedule', {
-        //             method: 'POST',
-        //             headers: {
-        //                 'Content-Type': 'application/json',
-        //             },
-        //             body: data
-        //             });
-                
-        
-        //         if (!response.ok) {
-        //             const errorData = await response.json();
-        //             toast.error(`Error: ${errorData.message || 'Failed to submit data'}`);
-        //         } else {
-        //             const result = await response.json();
-        //             console.log('Success:', result);
-        //         }
-        //     } catch (error) {
-        //         console.error('Network error:', error);
-        //     }
-        // };
-        
+        postFormData(JSON.stringify(data));
+
     };
 
     return (
@@ -118,27 +97,25 @@ export default function SpaceForm() {
                     <option value="EGO" disabled>EGO</option>
                 </select>
 
-                <label className="block mb-2">Latitude</label>
-                <input
-                    type="text"
-                    name="latitude"
-                    value={formData.latitude}
+                <label className="block mb-2">TLE 1</label>
+                <textarea
+                    name="tle1"
+                    value={formData.tle1}
                     onChange={handleChange}
-                    className="input input-bordered w-full mb-4"
-                    placeholder="38.868222"
+                    className="textarea textarea-bordered w-full mb-4"
+                    placeholder="Enter TLE 1"
                     required
-                />
+                ></textarea>
 
-                <label className="block mb-2">Longitude</label>
-                <input
-                    type="text"
-                    name="longitude"
-                    value={formData.longitude}
+                <label className="block mb-2">TLE 2</label>
+                <textarea
+                    name="tle2"
+                    value={formData.tle2}
                     onChange={handleChange}
-                    className="input input-bordered w-full mb-4"
-                    placeholder="111.58024"
+                    className="textarea textarea-bordered w-full mb-4"
+                    placeholder="Enter TLE 2"
                     required
-                />
+                ></textarea>
 
                 <button type="submit" className="btn btn-primary w-full">Submit</button>
             </form>
