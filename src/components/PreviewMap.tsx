@@ -1,22 +1,21 @@
-import { ReactElement, useEffect, useRef, useState } from 'react';
+import {ReactElement, useEffect, useRef, useState} from 'react';
 import './preview-map.css';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import mapboxgl, { Layer } from 'mapbox-gl';
-import type { FeatureCollection } from 'geojson';
-import { getHeatmap } from '../services/MapService.ts';
-import Slider from './Slider.tsx';
+import mapboxgl, {Layer} from 'mapbox-gl';
+import type {FeatureCollection} from 'geojson';
+import {getHeatmap} from '../services/MapService.ts';
 
 export interface PreviewMapProps {
-    props: any;
+    data: FeatureCollection | null;
+    setData: (data: FeatureCollection | null) => void;
     children: ReactElement | ReactElement[];
 }
 
-export default function PreviewMap({ props, children }: PreviewMapProps) {
+export default function PreviewMap({data, setData, children}: PreviewMapProps) {
     const mapContainerRef = useRef<HTMLDivElement | null>(null);
     const mapRef = useRef<mapboxgl.Map | null>(null);
 
     const [isLoading, setIsLoading] = useState<boolean>(true);
-    const [data, setData] = useState<FeatureCollection | null>(null);
 
     const heatmapId: string = 'space-objects';
     const heatmapLayer: Layer = {
@@ -123,10 +122,8 @@ export default function PreviewMap({ props, children }: PreviewMapProps) {
                     className="w-full h-full relative z-0"
                     ref={mapContainerRef}
                 >
-                    <div className='w-full h-full p-4 relative flex flex-wrap items-center justify-between z-1'>
-                        {children}
-                        </div>
-                    </div>
+                    {children}
+                </div>
             )}
         </div>
     );
