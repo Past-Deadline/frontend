@@ -1,9 +1,9 @@
 import {ReactElement, useEffect, useRef, useState} from 'react';
 import './preview-map.css';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import mapboxgl, {Layer} from 'mapbox-gl';
-import type {FeatureCollection} from 'geojson';
-import {getHeatmap} from '../services/MapService.ts';
+import mapboxgl, { Layer } from 'mapbox-gl';
+import type { FeatureCollection } from 'geojson';
+import { getHeatmap } from '../services/MapService.ts';
 
 export interface PreviewMapProps {
     data: FeatureCollection | null;
@@ -17,40 +17,16 @@ export default function PreviewMap({data, setData, children}: PreviewMapProps) {
 
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
-    const heatmapId: string = 'space-objects';
-    const heatmapLayer: Layer = {
-        id: 'space-objects-layer',
-        type: 'heatmap',
-        source: 'space-objects',
-        paint: {
-            'heatmap-color': [
-                'interpolate',
-                ['linear'],
-                ['heatmap-density'],
-                0,
-                'rgba(0,0,0,0)',
-                0.2,
-                'rgba(255,145,0,0.2)',
-                0.4,
-                'rgba(255,64,0,0.4)',
-                0.6,
-                'rgba(255,50,0,0.6)',
-                0.8,
-                'rgba(255,0,0,0.8)',
-                1,
-                'rgb(151,0,0)',
-            ]
-        }
-    };
+    const heatmapId = 'space-objects';
 
     const handlePost = async () => {
         try {
-            const data = await getHeatmap({
+            const heatmapData = await getHeatmap({
                 timestamp: new Date().toISOString(),
                 minAlt: 1000,
                 maxAlt: 2000,
             });
-            setData(data);
+            setData(heatmapData);
             setIsLoading(false);
         } catch (err) {
             console.error(err);
@@ -77,6 +53,30 @@ export default function PreviewMap({data, setData, children}: PreviewMapProps) {
 
         map.on('load', () => {
             if (data) {
+                const heatmapLayer: Layer = {
+                    id: 'space-objects-layer',
+                    type: 'heatmap',
+                    source: 'space-objects',
+                    paint: {
+                        'heatmap-color': [
+                            'interpolate',
+                            ['linear'],
+                            ['heatmap-density'],
+                            0,
+                            'rgba(0,0,0,0)',
+                            0.2,
+                            'rgba(255,145,0,0.2)',
+                            0.4,
+                            'rgba(255,64,0,0.4)',
+                            0.6,
+                            'rgba(255,50,0,0.6)',
+                            0.8,
+                            'rgba(255,0,0,0.8)',
+                            1,
+                            'rgb(151,0,0)',
+                        ]
+                    }
+                };
                 map.addSource(heatmapId, {
                     type: 'geojson',
                     data: data,
@@ -93,12 +93,10 @@ export default function PreviewMap({data, setData, children}: PreviewMapProps) {
 
     useEffect(() => {
         if (!mapRef.current || !data) return;
-
         if (!mapRef.current.isStyleLoaded()) return;
 
         const map = mapRef.current;
-
-        const existingSource = map.getSource('space-objects');
+        const existingSource = map.getSource(heatmapId);
         if (existingSource) {
             (existingSource as mapboxgl.GeoJSONSource).setData(data);
         } else {
@@ -106,6 +104,32 @@ export default function PreviewMap({data, setData, children}: PreviewMapProps) {
                 type: 'geojson',
                 data: data,
             });
+
+            const heatmapLayer: Layer = {
+                id: 'space-objects-layer',
+                type: 'heatmap',
+                source: heatmapId,
+                paint: {
+                    'heatmap-color': [
+                        'interpolate',
+                        ['linear'],
+                        ['heatmap-density'],
+                        0,
+                        'rgba(0,0,0,0)',
+                        0.2,
+                        'rgba(255,145,0,0.2)',
+                        0.4,
+                        'rgba(255,64,0,0.4)',
+                        0.6,
+                        'rgba(255,50,0,0.6)',
+                        0.8,
+                        'rgba(255,0,0,0.8)',
+                        1,
+                        'rgb(151,0,0)',
+                    ]
+                }
+            };
+
             map.addLayer(heatmapLayer);
         }
     }, [data]);

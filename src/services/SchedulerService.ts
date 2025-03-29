@@ -1,13 +1,13 @@
 import toast from "react-hot-toast";
 
-export const postFormData = async (data: any) => {
+export const postFormData = async (data: Record<string, unknown>) => {
   try {
     const response = await fetch("https://server-production-7795.up.railway.app/api/v01/schedule", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: data,
+      body: JSON.stringify(data),
     });
 
     if (!response.ok) {

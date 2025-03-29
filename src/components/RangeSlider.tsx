@@ -144,7 +144,7 @@ const VerticalDoubleRangeFlip: React.FC<VerticalDoubleRangeProps> = ({
                     zIndex: 30,
                 }}
             />
-            <p className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-sm  whitespace-nowrap">
+            <p className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-sm  whitespace-nowrap text-white">
                 Z coordinate
             </p>
 
