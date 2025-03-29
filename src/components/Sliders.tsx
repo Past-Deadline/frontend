@@ -20,11 +20,11 @@ const Sliders = ({hour, setHour, minute, setMinute}: SlidersProps) => {
             className="flex flex-col items-center space-y-4 p-4 bg-black text-white rounded-lg shadow-md w-full max-w-md">
 
             {/* Hour Slider */}
-            <Slider label={"Select Hour"} min={0} max={23} value={hour} step={1}
+            <Slider label={"Select Hour"} min={0} max={23} value={hour} step={1} length={5} multiplier={6}
                     onChange={(e) => setHour(Number((e.target as HTMLInputElement).value))}/>
 
             {/* Minute Slider */}
-            <Slider label="Select Minute" min={0} max={59} value={minute} step={1}
+            <Slider label="Select Minute" min={0} max={59} value={minute} step={1} length={7} multiplier={10}
                     onChange={(e: React.ChangeEvent) => setMinute(Number((e.target as HTMLInputElement).value))}/>
 
             {/* Selected Time Output */}
@@ -35,7 +35,7 @@ const Sliders = ({hour, setHour, minute, setMinute}: SlidersProps) => {
     );
 };
 
-const Slider = ({label, min, max, value, step, onChange}: SliderProps) => {
+const Slider = ({label, min, max, value, step, length, multiplier, onChange}: SliderProps) => {
     return (
         <div className="w-full">
             <label className="block text-sm font-semibold text-center mb-2">{label}</label>
@@ -50,7 +50,7 @@ const Slider = ({label, min, max, value, step, onChange}: SliderProps) => {
                 style={{accentColor: "#3B82F6"}}
             />
             <div className="flex justify-between text-xs mt-1 w-full">
-                {Array.from({length: 7}, (_, i) => i * 10).map((m) => (
+                {Array.from({length: length}, (_, i) => i * multiplier).map((m) => (
                     <span key={m} className="font-bold text-blue-400">
               {m === max + 1 ? max : m}
             </span>
@@ -66,6 +66,8 @@ interface SliderProps {
     max: number;
     value: number;
     step: number;
+    length: number;
+    multiplier: number;
     onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 

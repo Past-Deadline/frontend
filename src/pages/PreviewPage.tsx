@@ -7,11 +7,13 @@ import DatePicker from "../components/DatePicker.tsx";
 
 export const PreviewPage = () => {
 
+    const currentDate = new Date(Date.now());
+
     const [data, setData] = useState<FeatureCollection | null>(null);
-    const [hour, setHour] = useState(0);
-    const [minute, setMinute] = useState(0);
+    const [hour, setHour] = useState(currentDate.getHours());
+    const [minute, setMinute] = useState(currentDate.getMinutes());
     const [formData, setFormData] = useState({
-        start: new Date().toISOString().slice(0, 16),
+        start: currentDate.toISOString().slice(0, 16),
     });
     const [minZ, setMinZ] = useState(0);
     const [maxZ, setMaxZ] = useState(100);
