@@ -25,7 +25,6 @@ function App() {
           Стойности: <b>{rangeValues[0]}</b> - <b>{rangeValues[1]}</b>
         </p> */}
         <Toaster />
-        <Form/>
       </main>
       <Footer />
     </>

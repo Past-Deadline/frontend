@@ -33,10 +33,6 @@ export const PreviewPage = () => {
             console.log(lngLat);
 
             const dto: HeatmapDto = {
-                "minLat": lngLat.lat - 10,
-                "maxLat": lngLat.lat + 10,
-                "minLon": lngLat.lng - 10,
-                "maxLon": lngLat.lng + 10,
                 "timestamp": `${calendarData.start}:00Z`,
                 "minAlt": minZ,
                 "maxAlt": maxZ,
@@ -59,10 +55,6 @@ export const PreviewPage = () => {
         const fetchData = async () => {
             try {
                 const heatmapData = await getHeatmap({
-                    "minLat": -10,
-                    "maxLat": 10,
-                    "minLon": -20,
-                    "maxLon": 20,
                     "timestamp": "2026-01-01T00:00:00Z",
                     "minAlt": 0,
                     "maxAlt": 2000,
