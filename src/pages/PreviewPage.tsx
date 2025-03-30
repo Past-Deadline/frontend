@@ -26,9 +26,23 @@ export const PreviewPage = () => {
     const [minZ, setMinZ] = useState(500);
     const [maxZ, setMaxZ] = useState(2500);
 
+    function addParamsToUrl(dto: HeatmapDto) {
+        const url = new URL(window.location.href);
+        url.searchParams.set("minLat", dto.minLat.toString());
+        url.searchParams.set("maxLat", dto.maxLat.toString());
+        url.searchParams.set("minLon", dto.minLon.toString());
+        url.searchParams.set("maxLon", dto.maxLon.toString());
+        url.searchParams.set("timestamp", dto.timestamp);
+        url.searchParams.set("minAlt", dto.minAlt.toString());
+        url.searchParams.set("maxAlt", dto.maxAlt.toString());
+        url.search = url.searchParams.toString();
+        window.history.pushState({}, "", url);
+    }
+
     const debouncedSubmitQuery = useMemo(() =>
         debounce(async () => {
-        if (performance.now() - previousChange < 2000) {
+
+            if (performance.now() - previousChange < 2000) {
             if (!lngLat) return;
             console.log(lngLat);
 
@@ -43,6 +57,9 @@ export const PreviewPage = () => {
             }
 
             const res = await getHeatmap(dto);
+
+            addParamsToUrl(dto);
+
             setData(res);
         } else {
             setPreviousChange(performance.now());
@@ -85,8 +102,9 @@ export const PreviewPage = () => {
                 </div>
             ) : (
                 <PreviewMap data={data} setData={setData} setLngLat={setLngLat} setIsLoading={setIsLoading}>
-                    <div className="absolute z-1 top-1/2 left-0 transform -translate-y-1/2 flex flex-col items-center">
-                        <DatePicker formData={calendarData} setFormData={setCalendarData}/>
+                    <div className="absolute z-1 top-1/2 left-0 transform -translate-y-1/2 flex flex-col space-y-4 p-4 bg-black text-white rounded-lg shadow-md">
+                        <span className="text-center text-2xl font-bold mb-6">Select specific time</span>
+                        <DatePicker date={calendarData} setDate={setCalendarData}/>
                         <Sliders hour={hour} setHour={setHour} minute={minute} setMinute={setMinute}/>
                     </div>
                     <RangeSlider min={500} max={2500} height={500} initialValues={[minZ, maxZ]} onChange={(values) => {
