@@ -52,6 +52,7 @@ export default function SchedulerMap({
       style: 'mapbox://styles/mapbox/dark-v11',
       center: [0, 0],
       zoom: 2,
+      
     });
 
     mapRef.current = map;
@@ -116,7 +117,7 @@ export default function SchedulerMap({
             Math.abs(lat - orbitLat) < 0.1 && Math.abs(lng - orbitLng) < 0.1
         );
 
-        if (isOnOrbit) {
+   //     if (isOnOrbit) {
           const crossingId = `crossing-${index}`;
 
           if (map.getLayer(`crossing-point-${index}`)) {
@@ -151,10 +152,10 @@ export default function SchedulerMap({
           });
 
           new mapboxgl.Popup()
-            .setLngLat([lng, lat])
-            .setHTML(`<h3>Crossing Point ${index + 1}</h3><p>This point is on the orbit.</p>`)
-            .addTo(map);
-        }
+    .setLngLat([lng, lat])
+    .setHTML(`<h3 style="color: black;">Crossing Point ${index + 1}</h3><p style="color: black;"></p>`)
+    .addTo(map);
+
       });
     });
 
