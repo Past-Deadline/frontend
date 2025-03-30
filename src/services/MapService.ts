@@ -5,7 +5,7 @@ import {FeatureCollection} from "geojson";
 export async function getHeatmap(dto: HeatmapDto): Promise<FeatureCollection> {
     const start = performance.now();
     const res = await axios.post(
-        'https://server-production-7795.up.railway.app/v01/heatmap',
+        'https://nohost',
         dto
     );
     const end = performance.now();

@@ -37,10 +37,10 @@ const DatePicker = ({ formData, setFormData }: DatePickerProps) => {
 };
 
 interface DatePickerProps {
-    formData: {
+    date: {
         start: string;
     };
-    setFormData: (value: { start: string }) => void;
+    setDate: (value: { start: string }) => void;
 }
 
 export default DatePicker;

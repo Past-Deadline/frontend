@@ -22,6 +22,7 @@
     "react-dotenv": "^0.1.3",
     "react-hot-toast": "^2.5.2",
     "react-router-dom": "^6.30.0",
+    "satellite.js": "^5.0.0",
     "tailwindcss": "^4.0.17"
   },
   "devDependencies": {
