@@ -1,45 +1,68 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom"; // <-- React Router за работа с query string
 import PreviewMap from "../components/PreviewMap";
 import VerticalDoubleRange from "../components/RangeSlider";
-import Sliders from "../components/Sliders.tsx";
+import Sliders from "../components/Sliders";
 import type { FeatureCollection } from "geojson";
-import DatePicker from "../components/DatePicker.tsx";
-import { getHeatmap } from "../services/MapService.ts";
+import DatePicker from "../components/DatePicker";
+import { getHeatmap } from "../services/MapService";
 import { LngLat } from "mapbox-gl";
 import { debounce } from "lodash";
-import { HeatmapDto } from "../services/HeatmapDto.ts";
+import { HeatmapDto } from "../services/HeatmapDto";
 
 export const PreviewPage = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Малък helper за парсване на число от string | null
+  function parseNumber(param: string | null, fallback: number) {
+    if (param == null) return fallback;
+    const n = Number(param);
+    return Number.isFinite(n) ? n : fallback;
+  }
+
+  // Текуща дата/час за fallback
+  const now = new Date();
+
+  // 1) Четем параметрите от URL (ако ги има):
+  const paramStart = searchParams.get("start"); // YYYY-MM-DDTHH:mm
+  const paramHour = parseNumber(searchParams.get("hour"), now.getHours());
+  const paramMinute = parseNumber(searchParams.get("minute"), now.getMinutes());
+  const paramAltLow = parseNumber(searchParams.get("altLow"), 20);
+  const paramAltHigh = parseNumber(searchParams.get("altHigh"), 80);
+  const paramLng = parseNumber(searchParams.get("lng"), 0);
+  const paramLat = parseNumber(searchParams.get("lat"), 0);
+
+  // Проверка дали "start" е валиден datetime-local (поне 16 символа: YYYY-MM-DDTHH:mm)
+  const defaultStart =
+    paramStart && paramStart.length >= 16
+      ? paramStart
+      : now.toISOString().slice(0, 16);
+
+  // 2) Локален state за входните полета
   const [isLoading, setIsLoading] = useState<boolean>(true);
-
-  // Get current date/time as defaults
-  const currentDate = new Date();
-
-  // GeoJSON data returned from the server
   const [data, setData] = useState<FeatureCollection | null>(null);
 
-  // Map center from Mapbox
-  const [lngLat, setLngLat] = useState<LngLat | null>(new LngLat(0, 0));
+  // Държим lngLat в родителя (PreviewPage), за да го sync-нем с URL.
+  const [lngLat, setLngLat] = useState<LngLat | null>(new LngLat(paramLng, paramLat));
 
-  // DatePicker form data (string "YYYY-MM-DDTHH:mm")
-  const [calendarData, setCalendarData] = useState({
-    start: currentDate.toISOString().slice(0, 16),
-  });
+  // Дата/час от DatePicker
+  const [calendarData, setCalendarData] = useState({ start: defaultStart });
 
-  // Sliders for hour/minute
-  const [hour, setHour] = useState(currentDate.getHours());
-  const [minute, setMinute] = useState(currentDate.getMinutes());
+  // Час/минута от двата слайдера
+  const [hour, setHour] = useState(paramHour);
+  const [minute, setMinute] = useState(paramMinute);
 
-  // Vertical double-range for altitude selection (UI 0..100)
-  const [rangeValues, setRangeValues] = useState<[number, number]>([20, 80]);
+  // Altitude range (0..100 в UI)
+  const [rangeValues, setRangeValues] = useState<[number, number]>([
+    paramAltLow,
+    paramAltHigh,
+  ]);
 
-  // Actual alt in "real" units (e.g. 500..2500)
+  // Реални стойности (м) – примерно 500..2500
   const [minZ, setMinZ] = useState(500);
   const [maxZ, setMaxZ] = useState(2500);
 
-  /**
-   * Map 0..100 => 500..2500 for altitude
-   */
+  // 3) Когато rangeValues (0..100) се сменят => смятаме реалния диапазон (500..2500)
   useEffect(() => {
     const [low, high] = rangeValues;
     const minAltitude = 500;
@@ -52,24 +75,17 @@ export const PreviewPage = () => {
     setMaxZ(scale(high));
   }, [rangeValues]);
 
-  /**
-   * Debounced function that calls getHeatmap() 
-   * WITHOUT showing the spinner on subsequent loads.
-   */
+  // 4) Debounce зареждане на heatmap (не показваме spinner при всяко мръдване)
   const debouncedGetHeatmap = useMemo(
     () =>
       debounce(async (isoTimestamp: string, lowAlt: number, highAlt: number) => {
-        if (!lngLat) return; // Only call if we have a valid map center
-
+        if (!lngLat) return;
         try {
-          // Don't set isLoading = true; user wants no spinner on subsequent loads
-
           const dto: HeatmapDto = {
             timestamp: isoTimestamp,
             minAlt: lowAlt,
             maxAlt: highAlt,
           };
-
           const res = await getHeatmap(dto);
           setData(res);
         } catch (err) {
@@ -79,14 +95,12 @@ export const PreviewPage = () => {
     [lngLat]
   );
 
-  /**
-   * Whenever user changes date/hours/min/alt-range or the map center,
-   * trigger the debounced heatmap fetch.
-   */
+  // 5) Всеки път когато потребителят смени нещо (calendarData, hour, minute, alt, или карта),
+  //    викаме debouncedGetHeatmap, за да презаредим данните
   useEffect(() => {
     if (!lngLat) return;
 
-    // Convert the date + hour/minute => final ISO
+    // Правим Date от "calendarData.start" и set-ваме час/минута
     const d = new Date(calendarData.start);
     d.setHours(hour);
     d.setMinutes(minute);
@@ -98,9 +112,7 @@ export const PreviewPage = () => {
     };
   }, [lngLat, calendarData.start, hour, minute, minZ, maxZ, debouncedGetHeatmap]);
 
-  /**
-   * Fetch an initial heatmap once on mount (with spinner).
-   */
+  // 6) Първоначално зареждане с някакви примерни параметри (включваме spinner)
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -120,6 +132,35 @@ export const PreviewPage = () => {
     fetchData();
   }, []);
 
+  // 7) Sync-ваме state обратно към URL – при всяка промяна ъпдейтваме searchParams
+  useEffect(() => {
+    const newParams = new URLSearchParams(searchParams);
+
+    newParams.set("start", calendarData.start);
+    newParams.set("hour", String(hour));
+    newParams.set("minute", String(minute));
+    newParams.set("altLow", String(rangeValues[0]));
+    newParams.set("altHigh", String(rangeValues[1]));
+
+    if (lngLat) {
+      // за по-къс URL, ограничаваме до 5 знака след дес. точка
+      newParams.set("lng", lngLat.lng.toFixed(5));
+      newParams.set("lat", lngLat.lat.toFixed(5));
+    }
+
+    // setSearchParams с { replace: true } да не трупа entries в history
+    setSearchParams(newParams, { replace: true });
+  }, [
+    calendarData.start,
+    hour,
+    minute,
+    rangeValues,
+    lngLat,
+    searchParams,
+    setSearchParams,
+  ]);
+
+  // 8) Рендираме
   return (
     <div className="bg-black w-full h-full flex justify-center items-center">
       {isLoading ? (
@@ -131,11 +172,15 @@ export const PreviewPage = () => {
           data={data}
           setData={setData}
           setLngLat={setLngLat}
+          lngLat={lngLat} // подаваме при инициализация, за да центрира картата веднъж
           setIsLoading={setIsLoading}
         >
-          {/* Left-side controls (Date + time sliders) */}
+          {/* Ляв панел - дата и час */}
           <div className="absolute z-10 top-1/2 left-4 transform -translate-y-1/2 flex flex-col items-center space-y-4">
-            <DatePicker formData={calendarData} setFormData={setCalendarData} />
+            <DatePicker
+              formData={calendarData}
+              setFormData={setCalendarData}
+            />
             <Sliders
               hour={hour}
               setHour={setHour}
@@ -144,9 +189,8 @@ export const PreviewPage = () => {
             />
           </div>
 
-          {/* Right-side altitude slider + label */}
+          {/* Десен панел - алтиметър */}
           <div className="absolute z-10 right-4 top-1/2 transform -translate-y-1/2 flex flex-col items-center space-y-2 pt-4">
-
             <VerticalDoubleRange
               min={0}
               max={100}
