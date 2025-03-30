@@ -4,7 +4,7 @@ import {AdequateLaunch, SchedulerDto} from "./SchedulerDto.ts";
 
 export const postFormData = async (data: GetSchedulerDto): Promise<AdequateLaunch[] | null> => {
   try {
-    const response = await fetch("https://server-production-7795.up.railway.app/api/v01/schedule", {
+    const response = await fetch("https://server-production-7795.up.railway.app/v01/schedule", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
