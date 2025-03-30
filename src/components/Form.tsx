@@ -1,7 +1,16 @@
 import { useState } from 'react';
 import { addDays, addMonths, isBefore, isAfter } from 'date-fns';
+import {postFormData} from "../services/SchedulerService.ts";
+import {AdequateLaunch} from "../services/SchedulerDto.ts";
+import {GetSchedulerDto} from "../services/GetSchedulerDto.ts";
 
-export default function SchedulerForm({ onSubmitSuccess }: { onSubmitSuccess: () => void }) {
+interface SchedulerFormProps {
+    onSubmitSuccess: () => void;
+    recommendedRoutes: AdequateLaunch[];
+    setRecommendedRoutes: (routes: AdequateLaunch[]) => void;
+}
+
+export default function SchedulerForm({ onSubmitSuccess, recommendedRoutes, setRecommendedRoutes }: SchedulerFormProps) {
     const [formData, setFormData] = useState<{ 
         start: string;
         end: string;
@@ -32,7 +41,7 @@ export default function SchedulerForm({ onSubmitSuccess }: { onSubmitSuccess: ()
         setErrors(prev => ({ ...prev, [name]: '' }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const currentDate = new Date();
         const startDate = new Date(formData.start);
@@ -54,6 +63,20 @@ export default function SchedulerForm({ onSubmitSuccess }: { onSubmitSuccess: ()
             setErrors(newErrors);
             return;
         }
+        const result: GetSchedulerDto = {
+            time_frame: {
+                start: formData.start,
+                end: formData.end
+            },
+            orbit: formData.orbit,
+            points_of_interest: [
+                [formData.point1.x, formData.point1.y, formData!.point1.z],
+            ]
+        }
+            const res = await postFormData(result)
+            if (res) {
+                setRecommendedRoutes(res);
+            }
             console.log(formData);
             onSubmitSuccess();
             
