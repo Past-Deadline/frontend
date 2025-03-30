@@ -82,8 +82,8 @@ export const PreviewPage = () => {
 
   // Single source of truth for actual alt range
   const [minZ, maxZ] = useMemo(() => {
-    const minAltitude = 500;
-    const maxAltitude = 2500;
+    const minAltitude = 160;
+    const maxAltitude = 30000;
     const scale = (val: number) =>
       minAltitude + (val / 100) * (maxAltitude - minAltitude);
     return [scale(rangeValues[0]), scale(rangeValues[1])] as [number, number];
@@ -250,7 +250,7 @@ export const PreviewPage = () => {
               <div className="flex flex-col items-center text-white">
                 <span className="text-sm">Altitude Range</span>
                 <span className="text-sm">
-                  {minZ.toFixed(0)} - {maxZ.toFixed(0)} m
+                  {minZ.toFixed(0)} - {maxZ.toFixed(0)} km
                 </span>
               </div>
             </div>
