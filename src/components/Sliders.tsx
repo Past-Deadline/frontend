@@ -9,12 +9,6 @@ interface SlidersProps {
 
 const Sliders = ({hour, setHour, minute, setMinute}: SlidersProps) => {
 
-    // const getDate = (offset: number) => {
-    //   const today = new Date();
-    //   today.setDate(today.getDate() + offset);
-    //   return today.toLocaleDateString("en-US");
-    // };
-
     return (
         <div
             className="flex flex-col items-center space-y-4 p-4 bg-black text-white rounded-lg shadow-md w-full max-w-md">
