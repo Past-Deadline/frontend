@@ -15,41 +15,33 @@ const VerticalDoubleRangeFlip: React.FC<VerticalDoubleRangeProps> = ({
   onChange,
   height = 300,
 }) => {
-  // Logical slider values (bigger = visually higher)
-  const [lowerVal, setLowerVal] = useState(initialValues[0]);
-  const [upperVal, setUpperVal] = useState(initialValues[1]);
+  const [lowerVal, setLowerVal] = useState<number>(initialValues[0]);
+  const [upperVal, setUpperVal] = useState<number>(initialValues[1]);
 
+  // Sync with initialValues when they change from parent
   useEffect(() => {
-    onChange?.([lowerVal, upperVal]);
-  }, [lowerVal, upperVal, onChange]);
+    setLowerVal(initialValues[0]);
+    setUpperVal(initialValues[1]);
+  }, [initialValues[0], initialValues[1]]);
 
-  // We flip the raw input value so that a physically higher thumb corresponds to a larger value.
   const flipValue = (raw: number) => max - raw;
 
   const handleLowerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = Number(e.target.value);
     const flippedVal = flipValue(raw);
-    if (flippedVal <= upperVal) {
-      setLowerVal(flippedVal);
-    } else {
-      setLowerVal(upperVal);
-    }
+    const newLowerVal = Math.min(flippedVal, upperVal);
+    setLowerVal(newLowerVal);
+    onChange?.([newLowerVal, upperVal]);
   };
 
   const handleUpperChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = Number(e.target.value);
     const flippedVal = flipValue(raw);
-    if (flippedVal >= lowerVal) {
-      setUpperVal(flippedVal);
-    } else {
-      setUpperVal(lowerVal);
-    }
+    const newUpperVal = Math.max(flippedVal, lowerVal);
+    setUpperVal(newUpperVal);
+    onChange?.([lowerVal, newUpperVal]);
   };
 
-  // The original code computed a fill using "bottom" based on percentages.
-  // After rotation the coordinate system is flipped, so we instead compute:
-  // For a logical value, compute its percent from the top.
-  // When val === max, it should be at 0% from the top; when val === min, at 100%.
   const lowerPercentFromTop = 100 - ((lowerVal - min) / (max - min)) * 100;
   const upperPercentFromTop = 100 - ((upperVal - min) / (max - min)) * 100;
   const fillTop = `${Math.min(lowerPercentFromTop, upperPercentFromTop)}%`;
@@ -59,11 +51,11 @@ const VerticalDoubleRangeFlip: React.FC<VerticalDoubleRangeProps> = ({
     <div
       className="relative"
       style={{
-        width: "60px", // thickness of the visible track
-        height: `${height}px`, // actual height of the slider
+        width: "60px",
+        height: `${height}px`,
       }}
     >
-      {/* (1) Gray track (full height) */}
+      {/* Gray track */}
       <div
         className="absolute left-1/2 -translate-x-1/2 bg-gray-300 rounded"
         style={{
@@ -73,7 +65,7 @@ const VerticalDoubleRangeFlip: React.FC<VerticalDoubleRangeProps> = ({
         }}
       />
 
-      {/* (2) Blue fill between thumbs – positioned from the top */}
+      {/* Blue filled range */}
       <div
         className="absolute left-1/2 -translate-x-1/2 bg-blue-500 rounded"
         style={{
@@ -83,13 +75,12 @@ const VerticalDoubleRangeFlip: React.FC<VerticalDoubleRangeProps> = ({
         }}
       />
 
-      {/* (3) Lower handle (rotated 90°) */}
+      {/* Lower handle */}
       <input
         type="range"
         min={min}
         max={max}
         step={1}
-        // Store as "raw = max - lowerVal" so that physically up => bigger value
         value={max - lowerVal}
         onChange={handleLowerChange}
         className={`
@@ -108,13 +99,12 @@ const VerticalDoubleRangeFlip: React.FC<VerticalDoubleRangeProps> = ({
           width: `${height}px`,
           height: "60px",
           transformOrigin: "top left",
-          // rotate to make the slider vertical (and offset to align properly)
           transform: "rotate(90deg) translateY(-100%)",
           zIndex: lowerVal > upperVal ? 31 : 30,
         }}
       />
 
-      {/* (4) Upper handle (rotated 90°) */}
+      {/* Upper handle */}
       <input
         type="range"
         min={min}
