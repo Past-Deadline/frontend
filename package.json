@@ -18,9 +18,10 @@
     "nouislider-react": "^3.4.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-hot-toast": "^2.5.2",
     "react-dotenv": "^0.1.3",
+    "react-hot-toast": "^2.5.2",
     "react-router-dom": "^6.30.0",
+    "satellite.js": "^5.0.0",
     "tailwindcss": "^4.0.17"
   },
   "devDependencies": {
@@ -39,6 +40,8 @@
     "vite": "^6.2.0"
   },
   "react-dotenv": {
-    "whitelist": ["MAPBOX_TOKEN"]
+    "whitelist": [
+      "MAPBOX_TOKEN"
+    ]
   }
 }
