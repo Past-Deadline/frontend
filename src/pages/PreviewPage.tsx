@@ -9,6 +9,9 @@ import { getHeatmap } from "../services/MapService";
 import { LngLat } from "mapbox-gl";
 import { debounce } from "lodash";
 import { HeatmapDto } from "../services/HeatmapDto";
+import Checkbox from "../components/Checkbox";
+
+type SatelliteType = 1 | 2 | 3 | "undefined";
 
 export const PreviewPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -21,7 +24,7 @@ export const PreviewPage = () => {
     return Number.isFinite(n) ? n : fallback;
   };
 
-  // Extract initial params from URL, or use fallback
+  // 1) Extract initial params from URL (or use fallback)
   const paramStart = searchParams.get("start");
   const paramHour = parseNumber(searchParams.get("hour"), now.getHours());
   const paramMinute = parseNumber(searchParams.get("minute"), now.getMinutes());
@@ -30,13 +33,35 @@ export const PreviewPage = () => {
   const paramLng = parseNumber(searchParams.get("lng"), 0);
   const paramLat = parseNumber(searchParams.get("lat"), 0);
 
+  // Parse "types" from URL. If not present or invalid, default to all.
+  const paramTypesRaw = searchParams.get("types"); // e.g. "1,3"
+  const defaultAllTypes: SatelliteType[] = [1, 2, 3, "undefined"];
+
+  let parsedTypes: SatelliteType[] = [];
+  if (paramTypesRaw) {
+    const splitted = paramTypesRaw.split(",").map((t) => t.trim());
+    // Filter to ensure we only keep valid types
+    const validSet = new Set(["1", "2", "3", "undefined"]);
+    splitted.forEach((val) => {
+      if (validSet.has(val)) {
+        if (val === "1") parsedTypes.push(1);
+        else if (val === "2") parsedTypes.push(2);
+        else if (val === "3") parsedTypes.push(3);
+        else parsedTypes.push("undefined");
+      }
+    });
+  }
+  if (parsedTypes.length === 0) {
+    parsedTypes = defaultAllTypes;
+  }
+
   // If start param is invalid or missing, default to current ISO (sliced to "YYYY-MM-DDTHH:mm")
   const defaultStart =
     paramStart && paramStart.length >= 16
       ? paramStart
       : now.toISOString().slice(0, 16);
 
-  // Main state for the preview
+  // 2) Main state for the preview
   const [data, setData] = useState<FeatureCollection | null>(null);
   const [lngLat, setLngLat] = useState<LngLat | null>(
     new LngLat(paramLng, paramLat)
@@ -51,6 +76,9 @@ export const PreviewPage = () => {
     paramAltHigh,
   ]);
 
+  // State for the selected satellite types
+  const [typesFilter, setTypesFilter] = useState<SatelliteType[]>(parsedTypes);
+
   // Single source of truth for actual alt range
   const [minZ, maxZ] = useMemo(() => {
     const minAltitude = 500;
@@ -63,7 +91,7 @@ export const PreviewPage = () => {
   // Show spinner while we do the FIRST load only
   const [initialLoading, setInitialLoading] = useState(true);
 
-  // Build correct timestamp from calendar/hours/minutes
+  // 3) Build correct timestamp from calendar/hours/minutes
   const buildIsoTimestamp = useCallback((): string => {
     const d = new Date(calendarData.start);
     if (!isNaN(d.getTime())) {
@@ -76,9 +104,14 @@ export const PreviewPage = () => {
     }
   }, [calendarData.start, hour, minute]);
 
-  // --- 1) Do ONE immediate fetch on mount, using the actual user parameters ---
+  // Helper to get the effective types (if none selected, use all)
+  const getEffectiveTypes = useCallback((): SatelliteType[] => {
+    return typesFilter.length === 0 ? defaultAllTypes : typesFilter;
+  }, [typesFilter]);
+
+  // 4) Do ONE immediate fetch on mount
   useEffect(() => {
-    if (!lngLat) return; // guard, though likely never null
+    if (!lngLat) return; // guard, though typically never null
     const fetchInitialData = async () => {
       try {
         const isoTimestamp = buildIsoTimestamp();
@@ -86,6 +119,7 @@ export const PreviewPage = () => {
           timestamp: isoTimestamp,
           minAlt: minZ,
           maxAlt: maxZ,
+          types: getEffectiveTypes(),
         };
         const res = await getHeatmap(dto);
         setData(res);
@@ -99,39 +133,59 @@ export const PreviewPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // empty deps => runs only once
 
-  // --- 2) Debounced fetch for *subsequent* changes to time/altitude/map center ---
+  // 5) Debounced fetch for *subsequent* changes
   const debouncedUpdate = useMemo(
     () =>
-      debounce(async (isoTimestamp: string, lowAlt: number, highAlt: number) => {
-        if (!lngLat) return;
-        try {
-          const dto: HeatmapDto = {
-            timestamp: isoTimestamp,
-            minAlt: lowAlt,
-            maxAlt: highAlt,
-          };
-          const res = await getHeatmap(dto);
-          setData(res);
-        } catch (err) {
-          console.error(err);
-        }
-      }, 1000), // adjust the delay as desired
+      debounce(
+        async (
+          isoTimestamp: string,
+          lowAlt: number,
+          highAlt: number,
+          currentTypes: SatelliteType[]
+        ) => {
+          if (!lngLat) return;
+          try {
+            const dto: HeatmapDto = {
+              timestamp: isoTimestamp,
+              minAlt: lowAlt,
+              maxAlt: highAlt,
+              types: currentTypes,
+            };
+            const res = await getHeatmap(dto);
+            setData(res);
+          } catch (err) {
+            console.error(err);
+          }
+        },
+        1000 // adjust delay as desired
+      ),
     [lngLat]
   );
 
+  // Whenever user changes time/altitude/types or map center, do a new fetch (after initial load)
   useEffect(() => {
     if (initialLoading) return; // skip while the FIRST load is still happening
-    // Now handle user changes
     const isoTimestamp = buildIsoTimestamp();
-    debouncedUpdate(isoTimestamp, minZ, maxZ);
+    debouncedUpdate(isoTimestamp, minZ, maxZ, getEffectiveTypes());
     return () => {
       debouncedUpdate.cancel();
     };
-  }, [initialLoading, buildIsoTimestamp, minZ, maxZ, lngLat, debouncedUpdate]);
+  }, [
+    initialLoading,
+    buildIsoTimestamp,
+    minZ,
+    maxZ,
+    lngLat,
+    typesFilter,
+    debouncedUpdate,
+    getEffectiveTypes,
+  ]);
 
   // Keep URL in sync with the current state
   useEffect(() => {
     const newParams = new URLSearchParams(searchParams);
+
+    // Basic time/altitude/position
     newParams.set("start", calendarData.start);
     newParams.set("hour", String(hour));
     newParams.set("minute", String(minute));
@@ -143,6 +197,14 @@ export const PreviewPage = () => {
       newParams.set("lat", lngLat.lat.toFixed(5));
     }
 
+    // For types: if everything is selected or user cleared all, treat it as "all"
+    const activeTypes = getEffectiveTypes();
+    if (activeTypes.length === 4) {
+      newParams.delete("types");
+    } else {
+      newParams.set("types", activeTypes.join(","));
+    }
+
     setSearchParams(newParams, { replace: true });
   }, [
     calendarData.start,
@@ -150,26 +212,37 @@ export const PreviewPage = () => {
     minute,
     rangeValues,
     lngLat,
+    typesFilter,
     searchParams,
     setSearchParams,
+    getEffectiveTypes,
   ]);
 
   return (
     <div className="bg-black w-full h-full flex justify-center items-center">
       {initialLoading ? (
         <div className="bg-black w-1/8">
-          {/* Spinner is shown only during the very first load */}
+          {/* Spinner shown only during the first load */}
           <span className="text-white w-full h-full loading loading-spinner" />
         </div>
       ) : (
         <PreviewMap data={data} setLngLat={setLngLat} lngLat={lngLat}>
-          {/* Left UI overlay: date/time pickers */}
+          {/* Left UI overlay: date/time pickers + type checkboxes */}
           <div className="absolute z-10 top-1/2 left-4 transform -translate-y-1/2 flex flex-col items-center space-y-4">
-            <DatePicker
-              formData={calendarData}
-              setFormData={setCalendarData}
+            {/* Calendar + hour/minute sliders */}
+            <DatePicker formData={calendarData} setFormData={setCalendarData} />
+            <Sliders
+              hour={hour}
+              setHour={setHour}
+              minute={minute}
+              setMinute={setMinute}
             />
-            <Sliders hour={hour} setHour={setHour} minute={minute} setMinute={setMinute} />
+
+            {/* Satellite type filters */}
+            <Checkbox
+              selectedTypes={typesFilter}
+              onChange={(updated) => setTypesFilter(updated)}
+            />
           </div>
 
           {/* Right UI overlay: altitude range slider */}
