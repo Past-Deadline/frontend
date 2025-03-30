@@ -1,24 +1,18 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 
-const DatePicker = ({formData, setFormData}: DatePickerProps) => {
+const DatePicker = ({ formData, setFormData }: DatePickerProps) => {
     const [errors, setErrors] = useState<{ start?: string }>({});
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
+        const value = e.target.value;
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        const newErrors: { start?: string } = {};
+        // Проверка дали е валидна ISO дата
+        const isValid = value.length >= 16 && !isNaN(new Date(value).getTime());
 
-        if (!formData.start) {
-            newErrors.start = "Start date and time are required";
-        }
-
-        if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors);
+        if (!isValid) {
+            setErrors({ start: "Invalid date format" });
         } else {
-            console.log("Form submitted with: ", formData);
+            setFormData({ ...formData, [e.target.name]: value });
             setErrors({});
         }
     };
@@ -26,23 +20,18 @@ const DatePicker = ({formData, setFormData}: DatePickerProps) => {
     return (
         <div className="bg-gray-900 text-white flex flex-col items-center justify-center p-4">
             <div className="text-center text-2xl font-bold mb-6">Select specific time</div>
-            {/*<form*/}
-            {/*    onSubmit={handleSubmit}*/}
-            {/*    className="w-full max-w-md bg-gray-800 p-6 rounded-xl shadow-lg"*/}
-            {/*>*/}
-                <label className="block mb-2">Start Date</label>
-                <input
-                    type="datetime-local"
-                    name="start"
-                    value={formData.start}
-                    onChange={handleChange}
-                    className="input input-bordered w-full mb-2 bg-black"
-                    required
-                />
-                {errors.start && (
-                    <p className="text-red-500 text-sm mb-4">{errors.start}</p>
-                )}
-            {/*</form>*/}
+            <label className="block mb-2">Start Date</label>
+            <input
+                type="datetime-local"
+                name="start"
+                value={formData.start}
+                onChange={handleChange}
+                className="input input-bordered w-full mb-2 bg-black"
+                required
+            />
+            {errors.start && (
+                <p className="text-red-500 text-sm mb-4">{errors.start}</p>
+            )}
         </div>
     );
 };
