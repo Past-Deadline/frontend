@@ -9,8 +9,11 @@ import { getHeatmap } from "../services/MapService";
 import { LngLat } from "mapbox-gl";
 import { debounce } from "lodash";
 import { HeatmapDto } from "../services/HeatmapDto";
+import Footer from "../components/layout/Footer.tsx";
+import Header from "../components/layout/Header.tsx";
 import Checkbox from "../components/Checkbox";
 
+// Define the type for satellite types
 type SatelliteType = 1 | 2 | 3 | "undefined";
 
 export const PreviewPage = () => {
@@ -36,11 +39,9 @@ export const PreviewPage = () => {
   // Parse "types" from URL. If not present or invalid, default to all.
   const paramTypesRaw = searchParams.get("types"); // e.g. "1,3"
   const defaultAllTypes: SatelliteType[] = [1, 2, 3, "undefined"];
-
   let parsedTypes: SatelliteType[] = [];
   if (paramTypesRaw) {
     const splitted = paramTypesRaw.split(",").map((t) => t.trim());
-    // Filter to ensure we only keep valid types
     const validSet = new Set(["1", "2", "3", "undefined"]);
     splitted.forEach((val) => {
       if (validSet.has(val)) {
@@ -99,7 +100,6 @@ export const PreviewPage = () => {
       d.setMinutes(minute);
       return d.toISOString();
     } else {
-      // fallback if user picks something invalid
       return new Date().toISOString();
     }
   }, [calendarData.start, hour, minute]);
@@ -111,7 +111,7 @@ export const PreviewPage = () => {
 
   // 4) Do ONE immediate fetch on mount
   useEffect(() => {
-    if (!lngLat) return; // guard, though typically never null
+    if (!lngLat) return;
     const fetchInitialData = async () => {
       try {
         const isoTimestamp = buildIsoTimestamp();
@@ -162,9 +162,8 @@ export const PreviewPage = () => {
     [lngLat]
   );
 
-  // Whenever user changes time/altitude/types or map center, do a new fetch (after initial load)
   useEffect(() => {
-    if (initialLoading) return; // skip while the FIRST load is still happening
+    if (initialLoading) return;
     const isoTimestamp = buildIsoTimestamp();
     debouncedUpdate(isoTimestamp, minZ, maxZ, getEffectiveTypes());
     return () => {
@@ -181,7 +180,7 @@ export const PreviewPage = () => {
     getEffectiveTypes,
   ]);
 
-  // Keep URL in sync with the current state
+  // 6) Keep URL in sync with the current state
   useEffect(() => {
     const newParams = new URLSearchParams(searchParams);
 
@@ -197,9 +196,9 @@ export const PreviewPage = () => {
       newParams.set("lat", lngLat.lat.toFixed(5));
     }
 
-    // For types: if everything is selected or user cleared all, treat it as "all"
+    // For types: if all types are selected, remove the parameter
     const activeTypes = getEffectiveTypes();
-    if (activeTypes.length === 4) {
+    if (activeTypes.length === defaultAllTypes.length) {
       newParams.delete("types");
     } else {
       newParams.set("types", activeTypes.join(","));
@@ -219,50 +218,46 @@ export const PreviewPage = () => {
   ]);
 
   return (
-    <div className="bg-black w-full h-full flex justify-center items-center">
-      {initialLoading ? (
-        <div className="bg-black w-1/8">
-          {/* Spinner shown only during the first load */}
-          <span className="text-white w-full h-full loading loading-spinner" />
-        </div>
-      ) : (
-        <PreviewMap data={data} setLngLat={setLngLat} lngLat={lngLat}>
-          {/* Left UI overlay: date/time pickers + type checkboxes */}
-          <div className="absolute z-10 top-1/2 left-4 transform -translate-y-1/2 flex flex-col items-center space-y-4">
-            {/* Calendar + hour/minute sliders */}
-            <DatePicker formData={calendarData} setFormData={setCalendarData} />
-            <Sliders
-              hour={hour}
-              setHour={setHour}
-              minute={minute}
-              setMinute={setMinute}
-            />
-
-            {/* Satellite type filters */}
-            <Checkbox
-              selectedTypes={typesFilter}
-              onChange={(updated) => setTypesFilter(updated)}
-            />
+    <>
+      <Header />
+      <div className="bg-black w-full h-full flex justify-center items-center">
+        {initialLoading ? (
+          <div className="bg-black w-1/8">
+            {/* Spinner is shown only during the first load */}
+            <span className="text-white w-full h-full loading loading-spinner" />
           </div>
-
-          {/* Right UI overlay: altitude range slider */}
-          <div className="absolute z-10 right-4 top-1/2 transform -translate-y-1/2 flex flex-col items-center space-y-2 pt-4">
-            <VerticalDoubleRange
-              min={0}
-              max={100}
-              initialValues={rangeValues}
-              height={400}
-              onChange={(vals) => setRangeValues(vals)}
-            />
-            <div className="flex flex-col items-center text-white">
-              <span className="text-sm">Altitude Range</span>
-              <span className="text-sm">
-                {minZ.toFixed(0)} - {maxZ.toFixed(0)} m
-              </span>
+        ) : (
+          <PreviewMap data={data} setLngLat={setLngLat} lngLat={lngLat}>
+            {/* Left UI overlay: date/time pickers and satellite type filters */}
+            <div className="absolute z-10 top-1/2 left-4 transform -translate-y-1/2 flex flex-col items-center space-y-4">
+              <DatePicker formData={calendarData} setFormData={setCalendarData} />
+              <Sliders hour={hour} setHour={setHour} minute={minute} setMinute={setMinute} />
+              <Checkbox
+                selectedTypes={typesFilter}
+                onChange={(updated) => setTypesFilter(updated)}
+              />
             </div>
-          </div>
-        </PreviewMap>
-      )}
-    </div>
+
+            {/* Right UI overlay: altitude range slider */}
+            <div className="absolute z-10 right-4 top-1/2 transform -translate-y-1/2 flex flex-col items-center space-y-2 pt-4">
+              <VerticalDoubleRange
+                min={0}
+                max={100}
+                initialValues={rangeValues}
+                height={400}
+                onChange={(vals) => setRangeValues(vals)}
+              />
+              <div className="flex flex-col items-center text-white">
+                <span className="text-sm">Altitude Range</span>
+                <span className="text-sm">
+                  {minZ.toFixed(0)} - {maxZ.toFixed(0)} m
+                </span>
+              </div>
+            </div>
+          </PreviewMap>
+        )}
+      </div>
+      <Footer />
+    </>
   );
 };
