@@ -1,6 +1,6 @@
 import {useEffect, useMemo, useState} from "react";
 import PreviewMap from "../components/PreviewMap"
-import RangeSlider from "../components/RangeSlider"
+import VerticalDoubleRange from "../components/RangeSlider"
 import Sliders from "../components/Sliders.tsx"
 import type {FeatureCollection} from "geojson";
 import DatePicker from "../components/DatePicker.tsx";
@@ -81,13 +81,13 @@ export const PreviewPage = () => {
                         <DatePicker formData={calendarData} setFormData={setCalendarData}/>
                         <Sliders hour={hour} setHour={setHour} minute={minute} setMinute={setMinute}/>
                     </div>
-                    <RangeSlider min={500} max={2500} height={500} initialValues={[minZ, maxZ]} onChange={(values) => {
-                        setMinZ(values[0])
-                        setMaxZ(values[1])
-                    }
-                    }
-                                 className={"absolute z-1 top-1/2 right-0 transform -translate-y-1/2"}
-                    />
+                    <VerticalDoubleRange
+          min={0}
+          max={100}
+          initialValues={rangeValues}
+          height={400} // колко пиксела висок да е
+          onChange={(vals) => setRangeValues(vals)}
+        />
                 </PreviewMap>
             )}
         </div>
