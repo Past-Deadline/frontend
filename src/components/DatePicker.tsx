@@ -26,10 +26,10 @@ const DatePicker = ({formData, setFormData}: DatePickerProps) => {
     return (
         <div className="bg-gray-900 text-white flex flex-col items-center justify-center p-4">
             <div className="text-center text-2xl font-bold mb-6">Select specific time</div>
-            <form
-                onSubmit={handleSubmit}
-                className="w-full max-w-md bg-gray-800 p-6 rounded-xl shadow-lg"
-            >
+            {/*<form*/}
+            {/*    onSubmit={handleSubmit}*/}
+            {/*    className="w-full max-w-md bg-gray-800 p-6 rounded-xl shadow-lg"*/}
+            {/*>*/}
                 <label className="block mb-2">Start Date</label>
                 <input
                     type="datetime-local"
@@ -42,11 +42,7 @@ const DatePicker = ({formData, setFormData}: DatePickerProps) => {
                 {errors.start && (
                     <p className="text-red-500 text-sm mb-4">{errors.start}</p>
                 )}
-
-                <button type="submit" className="btn btn-primary w-full">
-                    Submit
-                </button>
-            </form>
+            {/*</form>*/}
         </div>
     );
 };
