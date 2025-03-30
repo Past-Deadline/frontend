@@ -41,3 +41,30 @@
   height: 20px;
   right: -10px;
 }
+
+/* Optional: Style the thumbs more visibly */
+input[type='range'].range-thumb::-webkit-slider-thumb {
+  background-color: #3b82f6; /* Tailwind blue-500 */
+  border: none;
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+input[type='range'].range-thumb {
+  background: transparent;
+  pointer-events: none;
+}
+
+input[type='range'].range-thumb::-webkit-slider-thumb {
+  pointer-events: auto;
+}
+
+input[type='range'].range-thumb::-moz-range-thumb {
+  pointer-events: auto;
+}
+
+input[type='range'].range-thumb::-ms-thumb {
+  pointer-events: auto;
+}
