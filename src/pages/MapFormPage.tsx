@@ -4,11 +4,13 @@ import SchedulerMap from "../components/SchedulerMap";
 import RecommendedRoutes from "../components/RecommendedRoutes";
 import Header from "../components/layout/Header.tsx";
 import Footer from "../components/layout/Footer.tsx";
+import {AdequateLaunch} from "../services/SchedulerDto.ts";
 
 export const MapFormPage = () => {
     const [showForm, setShowForm] = useState(true);
     const [animateOut, setAnimateOut] = useState(false);
     const [showRoutes, setShowRoutes] = useState(false);
+    const [recommendedRoutes, setRecommendedRoutes] = useState<AdequateLaunch[]>([]);
 
     const handleFormSubmit = () => {
         setAnimateOut(true); // Start fade-out animation
@@ -42,7 +44,7 @@ export const MapFormPage = () => {
                         <div
                             className={`absolute w-full h-full transition-opacity duration-500 ease-in-out bg-white shadow-lg ${animateOut ? "opacity-0" : "opacity-100"}`}
                         >
-                            <SchedulerForm onSubmitSuccess={handleFormSubmit}/>
+                            <SchedulerForm recommendedRoutes={recommendedRoutes} setRecommendedRoutes={setRecommendedRoutes} onSubmitSuccess={handleFormSubmit}/>
                         </div>
                     )}
                     {showRoutes && (

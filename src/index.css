@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
+#root {
+    background-color: black;
+}
+
 .vertical-slider-container {
   margin: 20px;
   padding: 0 15px;
