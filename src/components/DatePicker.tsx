@@ -1,7 +1,6 @@
-import React, {useState} from "react";
+import React from "react";
 
 const DatePicker = ({date, setDate}: DatePickerProps) => {
-    const [errors, setErrors] = useState<{ start?: string }>({});
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setDate({...date, [e.target.name]: e.target.value});
@@ -18,9 +17,6 @@ const DatePicker = ({date, setDate}: DatePickerProps) => {
                 className="input w-full text-lg bg-black"
                 required
             />
-            {errors.start && (
-                <p className="text-red-500 text-sm mb-4">{errors.start}</p>
-            )}
         </div>
     );
 };
