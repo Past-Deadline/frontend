@@ -1,7 +1,9 @@
-import { useState } from "react";
+import {useState} from "react";
 import SchedulerForm from "../components/Form";
 import SchedulerMap from "../components/SchedulerMap";
 import RecommendedRoutes from "../components/RecommendedRoutes";
+import Header from "../components/layout/Header.tsx";
+import Footer from "../components/layout/Footer.tsx";
 
 export const MapFormPage = () => {
     const [showForm, setShowForm] = useState(true);
@@ -26,27 +28,32 @@ export const MapFormPage = () => {
     ];
 
     return (
-        <div className="relative h-screen flex">
-            {/* Map Container: 2/3 of the screen width */}
-            <div className="w-2/3 h-full">
-                <SchedulerMap tle={tle} crossingCoordinates={eciTestData} />
-            </div>
+        <>
+            <Header/>
+            <div className="relative h-screen flex">
+                {/* Map Container: 2/3 of the screen width */}
+                <div className="w-2/3 h-full">
+                    <SchedulerMap tle={tle} crossingCoordinates={eciTestData}/>
+                </div>
 
-            {/* Form or Recommended Routes Container */}
-            <div className="w-1/3 h-full relative">
-                {showForm && (
-                    <div
-                        className={`absolute w-full h-full transition-opacity duration-500 ease-in-out bg-white shadow-lg ${animateOut ? "opacity-0" : "opacity-100"}`}
-                    >
-                        <SchedulerForm onSubmitSuccess={handleFormSubmit} />
-                    </div>
-                )}
-                {showRoutes && (
-                    <div className="absolute w-full h-full transition-opacity duration-500 ease-in-out opacity-100 bg-white shadow-lg">
-                        <RecommendedRoutes />
-                    </div>
-                )}
+                {/* Form or Recommended Routes Container */}
+                <div className="w-1/3 h-full relative">
+                    {showForm && (
+                        <div
+                            className={`absolute w-full h-full transition-opacity duration-500 ease-in-out bg-white shadow-lg ${animateOut ? "opacity-0" : "opacity-100"}`}
+                        >
+                            <SchedulerForm onSubmitSuccess={handleFormSubmit}/>
+                        </div>
+                    )}
+                    {showRoutes && (
+                        <div
+                            className="absolute w-full h-full transition-opacity duration-500 ease-in-out opacity-100 bg-white shadow-lg">
+                            <RecommendedRoutes/>
+                        </div>
+                    )}
+                </div>
             </div>
-        </div>
+            <Footer/>
+        </>
     );
 };

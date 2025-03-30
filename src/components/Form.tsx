@@ -65,15 +65,15 @@ export default function SchedulerForm({ onSubmitSuccess }: { onSubmitSuccess: ()
             <div className="text-center text-2xl font-bold mb-6">Launch Scheduler</div>
             <form onSubmit={handleSubmit} className="w-full max-w-lg bg-gray-800 p-6 rounded-xl shadow-lg space-y-4">
                 <label className="block">Start Date</label>
-                <input type="datetime-local" name="start" value={formData.start} onChange={handleChange} className="input input-bordered w-full" required />
+                <input type="datetime-local" name="start" value={formData.start} onChange={handleChange} className="input input-bordered w-full text-black" required />
                 {errors.start && <p className="text-red-500 text-sm">{errors.start}</p>}
 
                 <label className="block">End Date</label>
-                <input type="datetime-local" name="end" value={formData.end} onChange={handleChange} className="input input-bordered w-full" required />
+                <input type="datetime-local" name="end" value={formData.end} onChange={handleChange} className="input input-bordered w-full text-black" required />
                 {errors.end && <p className="text-red-500 text-sm">{errors.end}</p>}
 
                 <label className="block">Orbit</label>
-                <select name="orbit" value={formData.orbit} onChange={handleChange} className="select select-bordered w-full">
+                <select name="orbit" value={formData.orbit} onChange={handleChange} className="select select-bordered w-full text-black">
                     <option value="LEO">LEO</option>
                     <option value="MEO" disabled>MEO</option>
                     <option value="EGO" disabled>EGO</option>
@@ -91,7 +91,7 @@ export default function SchedulerForm({ onSubmitSuccess }: { onSubmitSuccess: ()
                             {['x', 'y', 'z'].map(axis => (
                                 <div key={axis} className="flex items-center gap-2">
                                     <label className="text-sm font-medium">{axis.toUpperCase()}:</label>
-                                    <input type="number" name={`${point}.${axis}`} value={formData[point as 'point1' | 'point2'][axis as 'x' | 'y' | 'z']} onChange={handleChange} className="input input-bordered w-20" required />
+                                    <input type="number" name={`${point}.${axis}`} value={formData[point as 'point1' | 'point2'][axis as 'x' | 'y' | 'z']} onChange={handleChange} className="input text-black input-bordered w-20" required />
                                 </div>
                             ))}
                         </div>
