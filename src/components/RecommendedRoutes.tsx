@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { addDays, addMonths, isBefore, isAfter } from 'date-fns';
 
-export default function SchedulerForm({ onSubmitSuccess }: { onSubmitSuccess: () => void }) {
+export default function RecommendedRoutes() {
     const [formData, setFormData] = useState<{ 
         start: string;
         end: string;
@@ -55,14 +55,14 @@ export default function SchedulerForm({ onSubmitSuccess }: { onSubmitSuccess: ()
             return;
         }
             console.log(formData);
-            onSubmitSuccess();
+           // onSubmitSuccess();
             
        // postFormData(formData);
     };
 
     return (
         <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-4">
-            <div className="text-center text-2xl font-bold mb-6">Launch Scheduler</div>
+            <div className="text-center text-2xl font-bold mb-6">Recommended Routes</div>
             <form onSubmit={handleSubmit} className="w-full max-w-lg bg-gray-800 p-6 rounded-xl shadow-lg space-y-4">
                 <label className="block">Start Date</label>
                 <input type="datetime-local" name="start" value={formData.start} onChange={handleChange} className="input input-bordered w-full" required />
