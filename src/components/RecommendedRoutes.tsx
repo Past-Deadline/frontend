@@ -1,105 +1,67 @@
-import { useState } from 'react';
-import { addDays, addMonths, isBefore, isAfter } from 'date-fns';
-
-export default function RecommendedRoutes() {
-    const [formData, setFormData] = useState<{ 
-        start: string;
-        end: string;
-        orbit: string;
-        point1: { x: string; y: string; z: string };
-        point2: { x: string; y: string; z: string };
-    }>({
-        start: '',
-        end: '',
-        orbit: 'LEO',
-        point1: { x: '', y: '', z: '' },
-        point2: { x: '', y: '', z: '' }
-    });
-
-    const [errors, setErrors] = useState<{ start: string; end: string }>({ start: '', end: '' });
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        if (name.startsWith('point1') || name.startsWith('point2')) {
-            const [point, axis] = name.split('.');
-            setFormData(prev => ({
-                ...prev,
-                [point]: { ...prev[point as 'point1' | 'point2'], [axis]: value }
-            }));
-        } else {
-            setFormData(prev => ({ ...prev, [name]: value }));
-        }
-        setErrors(prev => ({ ...prev, [name]: '' }));
-    };
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        const currentDate = new Date();
-        const startDate = new Date(formData.start);
-        const endDate = new Date(formData.end);
-
-        const newErrors = { start: '', end: '' };
-
-        if (isBefore(startDate, addDays(currentDate, 3))) {
-            newErrors.start = 'Start date must be at least 3 days from today.';
-        }
-        if (isAfter(endDate, addMonths(currentDate, 6))) {
-            newErrors.end = 'End date must be within 6 months from today.';
-        }
-        if (isBefore(endDate, startDate)) {
-            newErrors.end = 'End date must be later than the start date.';
-        }
-
-        if (newErrors.start || newErrors.end) {
-            setErrors(newErrors);
-            return;
-        }
-            console.log(formData);
-           // onSubmitSuccess();
-            
-       // postFormData(formData);
-    };
-
+export default function RecommendedRoutes({routes}: { routes: AdequateLaunch[] }) {
     return (
         <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-4">
             <div className="text-center text-2xl font-bold mb-6">Recommended Routes</div>
-            <form onSubmit={handleSubmit} className="w-full max-w-lg bg-gray-800 p-6 rounded-xl shadow-lg space-y-4">
-                <label className="block">Start Date</label>
-                <input type="datetime-local" name="start" value={formData.start} onChange={handleChange} className="input input-bordered w-full" required />
-                {errors.start && <p className="text-red-500 text-sm">{errors.start}</p>}
-
-                <label className="block">End Date</label>
-                <input type="datetime-local" name="end" value={formData.end} onChange={handleChange} className="input input-bordered w-full" required />
-                {errors.end && <p className="text-red-500 text-sm">{errors.end}</p>}
-
-                <label className="block">Orbit</label>
-                <select name="orbit" value={formData.orbit} onChange={handleChange} className="select select-bordered w-full">
-                    <option value="LEO">LEO</option>
-                    <option value="MEO" disabled>MEO</option>
-                    <option value="EGO" disabled>EGO</option>
-                </select>
-
-                <div className="flex items-center gap-2">
-                    <label className="block">Points of Orbit</label>
-                    <span className="text-gray-400 text-sm">(ECI)</span>
-                </div>
-
-                {["point1"].map((point, index) => (
-                    <div key={point} className="mb-4">
-                        <label className="block font-bold">Point {index + 1}</label>
-                        <div className="flex gap-4">
-                            {['x', 'y', 'z'].map(axis => (
-                                <div key={axis} className="flex items-center gap-2">
-                                    <label className="text-sm font-medium">{axis.toUpperCase()}:</label>
-                                    <input type="number" name={`${point}.${axis}`} value={formData[point as 'point1' | 'point2'][axis as 'x' | 'y' | 'z']} onChange={handleChange} className="input input-bordered w-20" required />
-                                </div>
-                            ))}
-                        </div>
+            {routes.map((route, index) => {
+                return (
+                    <div key={index} className="mb-4">
+                        <SatelliteCard sat={route.point} />
                     </div>
-                ))}
-
-                <button type="submit" className="btn btn-primary w-full">Submit</button>
-            </form>
+                );
+            })}
         </div>
     );
 }
+
+import { FaRocket, FaSatellite, FaGlobe } from "react-icons/fa";
+import {AdequateLaunch} from "../services/SchedulerDto.ts";
+
+export const SatelliteCard = ({ sat }: {sat}) => {
+    return (
+        <div className="card w-full max-w-md bg-gradient-to-br from-gray-900 to-gray-700 text-white shadow-2xl p-6 rounded-xl border border-gray-600">
+            <div className="card-body">
+                <div className="flex items-center space-x-4 mb-6">
+                    <FaSatellite className="text-yellow-400 text-3xl" />
+                    <h2 className="card-title text-2xl font-bold">{sat.name} ({sat.altName})</h2>
+                </div>
+                <p className="text-gray-300 mb-4 italic">{sat.payload}</p>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <span className="font-semibold text-yellow-300">Launch Date:</span> {sat.launchDate}
+                    </div>
+                    <div>
+                        <span className="font-semibold text-yellow-300">Owner:</span> {sat.owner}
+                    </div>
+                    <div>
+                        <span className="font-semibold text-yellow-300">Manufacturer:</span> {sat.manufacturer}
+                    </div>
+                    <div>
+                        <span className="font-semibold text-yellow-300">Mass:</span> {sat.Mass} kg
+                    </div>
+                    <div>
+                        <span className="font-semibold text-yellow-300">Shape:</span> {sat.shape}
+                    </div>
+                    <div>
+                        <span className="font-semibold text-yellow-300">Launch Vehicle:</span> {sat.launchVehicle}
+                    </div>
+                    <div>
+                        <span className="font-semibold text-yellow-300">Launch Site:</span> {sat.launchSite} ({sat.launchPad})
+                    </div>
+                    <div>
+                        <span className="font-semibold text-yellow-300">RCS:</span> {sat.rcs}
+                    </div>
+                </div>
+                <div className="mt-6 flex space-x-3">
+                    <div className="badge badge-outline flex items-center space-x-2 px-3 py-1 border-yellow-400 text-yellow-400">
+                        <FaRocket className="text-red-500" />
+                        <span className="font-semibold">{sat.status === "+" ? "Active" : "Inactive"}</span>
+                    </div>
+                    <div className="badge badge-outline flex items-center space-x-2 px-3 py-1 border-green-400 text-green-400">
+                        <FaGlobe className="text-green-400" />
+                        <span className="font-semibold">{sat.country}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};

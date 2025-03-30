@@ -6,7 +6,13 @@ export interface SchedulerDto {
 export interface AdequateLaunch {
     point: number[];
     launch: LaunchDetails;
-    interceptions_count: number;
+    interceptions: Interception[];
+}
+
+export interface Interception {
+    interception: {
+
+    }
 }
 
 interface LaunchDetails {

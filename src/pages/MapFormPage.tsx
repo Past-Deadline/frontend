@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import SchedulerForm from "../components/Form";
 import SchedulerMap from "../components/SchedulerMap";
 import RecommendedRoutes from "../components/RecommendedRoutes";
@@ -13,6 +13,7 @@ export const MapFormPage = () => {
     const [recommendedRoutes, setRecommendedRoutes] = useState<AdequateLaunch[]>([]);
 
     const handleFormSubmit = () => {
+
         setAnimateOut(true); // Start fade-out animation
         setTimeout(() => {
             setShowForm(false);
@@ -28,6 +29,7 @@ export const MapFormPage = () => {
     const eciTestData: [number, number, number][] = [
         [2543.6, -3792.8, 5563.3]
     ];
+
 
     return (
         <>
@@ -50,7 +52,7 @@ export const MapFormPage = () => {
                     {showRoutes && (
                         <div
                             className="absolute w-full h-full transition-opacity duration-500 ease-in-out opacity-100 bg-white shadow-lg">
-                            <RecommendedRoutes/>
+                            <RecommendedRoutes routes={recommendedRoutes} />
                         </div>
                     )}
                 </div>
